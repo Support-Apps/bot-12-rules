@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בוט האימון האישי</title>
+<style>
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --black: #fdf0f5;
+    --dark: #fff5f9;
+    --dark2: #ffffff;
+    --text: #4a3040;
+    --muted: #b08090;
+    --pink: #f7c5d8;
+    --pink2: #fce8f0;
+    --border: #f0c8d8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bsd {
+    position: fixed;
+    top: 8px;
+    right: 16px;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+    z-index: 200;
+    letter-spacing: 1px;
+  }
+
+  /* HEADER */
+  .header {
+    width: 100%;
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .header-info h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1.2;
+  }
+  .header-info p {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .law-indicator {
+    margin-right: auto;
+    background: var(--pink2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    width: 100%;
+    max-width: 700px;
+    padding: 10px 20px 0;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-bar {
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  /* CHAT AREA */
+  .chat-area {
+    flex: 1;
+    width: 100%;
+    max-width: 700px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  /* MESSAGES */
+  .msg {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.35s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg.coach { flex-direction: row; }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-top: 2px;
+  }
+  .msg.coach .avatar { background: var(--gold); }
+  .msg.user .avatar { background: var(--pink); border: 1px solid var(--border); }
+
+  .bubble {
+    max-width: 80%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .msg.coach .bubble {
+    background: var(--dark2);
+    border: 1px solid var(--pink);
+    border-radius: 4px 16px 16px 16px;
+    color: var(--text);
+  }
+  .msg.user .bubble {
+    background: var(--pink2);
+    border: 1px solid var(--gold);
+    border-radius: 16px 4px 16px 16px;
+    color: var(--gold);
+  }
+  .bubble strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .bubble .law-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* CHOICES */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 580px;
+    margin-right: 46px;
+    animation: fadeUp 0.4s ease 0.1s both;
+  }
+  .choice-btn {
+    background: var(--pink2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: right;
+    transition: all 0.2s;
+    line-height: 1.5;
+  }
+  .choice-btn:hover {
+    border-color: var(--gold);
+    background: var(--pink);
+    color: var(--gold);
+    transform: translateX(-3px);
+  }
+  .choice-btn:active { transform: translateX(-1px); }
+
+  /* INPUT AREA */
+  .input-wrap {
+    width: 100%;
+    max-width: 700px;
+    padding: 12px 16px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .user-input {
+    flex: 1;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    padding: 12px 16px;
+    resize: none;
+    outline: none;
+    min-height: 50px;
+    max-height: 150px;
+    transition: border-color 0.2s;
+    direction: rtl;
+  }
+  .user-input:focus { border-color: var(--gold); }
+  .user-input::placeholder { color: #c0a0b0; }
+  .send-btn {
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .send-btn:hover { background: var(--gold-light); }
+  .send-btn:active { transform: scale(0.95); }
+
+  /* TYPING */
+  .typing-indicator {
+    display: flex; gap: 5px; align-items: center;
+    padding: 14px 16px;
+    background: var(--dark2);
+    border: 1px solid var(--pink);
+    border-radius: 4px 16px 16px 16px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* LAW CARD */
+  .law-card {
+    background: var(--pink2);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 4px 0;
+  }
+  .law-card-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .law-card-text {
+    font-size: 13px;
+    color: #a08080;
+    line-height: 1.8;
+  }
+
+  /* COMPLETED */
+  .completion-card {
+    background: var(--pink2);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin: 0 16px;
+    animation: fadeUp 0.5s ease;
+  }
+  .completion-card .trophy { font-size: 48px; margin-bottom: 12px; }
+  .completion-card h2 { color: var(--gold); font-size: 22px; margin-bottom: 8px; }
+  .completion-card p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+  .restart-btn {
+    margin-top: 16px;
+    background: var(--gold);
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .restart-btn:hover { background: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<div class="bsd">בס"ד</div>
+<div class="header">
+  <div class="logo-icon">✈️</div>
+  <div class="header-info">
+    <h1>בוט האימון האישי</h1>
+    <p>12 חוקים לחיים</p>
+  </div>
+  <div class="law-indicator" id="lawIndicator">חוק 1/12</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>התקדמות</span>
+    <span id="progressText">0%</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="chat-area" id="chatArea"></div>
+
+<div class="input-wrap" id="inputWrap">
+  <textarea class="user-input" id="userInput" placeholder="כתוב את תשובתך כאן..." rows="1"></textarea>
+  <button class="send-btn" onclick="sendMessage()" title="שלח">➤</button>
+</div>
+
+<script>
+const LAWS = [
+  {
+    num: 1,
+    title: "מה שאתם רודפים אחריו תמיד יברח",
+    summary: "האנרגיה של רדיפה מכילה בתוכה תדר של חוסר. ככל שאתם רודפים – כך זה מתרחק. כי נואשות דוחה.",
+    question: "ספרי לי על משהו שאת רודפת אחריו ממש עכשיו — קשר, הצלחה, כסף, אהבה. מה הרגש שמניע אותך לרדוף?",
+    followup: function(ans) { return 'הבנתי. עכשיו שאלה חשובה: כשאת חושבת על "' + ans.slice(0,30) + '..." — האם זה מרגיש לך כמו מחסור, או כמו שלמות? כי הכיוון שממנו תרדפי קובע אם זה יימלט.'; },
+    insight: "💡 **הפנמה:** הפסיקי לרדוף. תהפכי למגנט. כשתפסיקי להרגיש שאת *חסרה* — מה שאת רוצה יתחיל לזוז לכיוונך."
+  },
+  {
+    num: 2,
+    title: "התגובה שלכם היא הדבר היחיד שהם באמת רוצים",
+    summary: "כשאתם מגיבים — הגישה עדיין פתוחה. כשאתם לא מגיבים — הגישה נסגרת. אי-תגובה היא לא חולשה, זו הגבול הכי חזק.",
+    question: "יש מישהו בחייך שאת מרגישה שהוא לוחץ על הכפתורים שלך? מה קורה בך כשאת מגיבה לו?",
+    followup: function(ans) { return 'מעניין. אז כשאת מגיבה — מה את נותנת לו בעצם? כוח? תשומת לב? ומה היה קורה אם היית פשוט... לא מגיבה?'; },
+    insight: "💡 **הפנמה:** בפעם הבאה שמישהו ינסה להוציא ממך תגובה — עצור שניה. בחר אם זה מגיע ממקום של כוח או חולשה."
+  },
+  {
+    num: 3,
+    title: "שתיקה היא תשובה שלמה",
+    summary: "לימדו אתכם שלא להגיב זה לא מנומס. אבל להגיב להכול עולה לכם ביוקר. שתיקה לא אומרת שאין לכם מה להגיד — היא אומרת שמה שנאמר לא שווה את המילים שלכם.",
+    question: "מתי בפעם האחרונה ענית למישהו — ואחר כך התחרטת? מה גרם לך לענות?",
+    followup: function(ans) { return 'אז הרגשת שאת חייבת להגיב. שאלה: מי קבע שאת חייבת? מה היה קורה אם היית שותקת — מה היית מאבדת בעצם?'; },
+    insight: "💡 **הפנמה:** שתיקה היא שרירותי. כשאת שותקת מתוך בחירה — זה כוח. כשאת מגיבה כי הרגשת מאוימת — זה פחד."
+  },
+  {
+    num: 4,
+    title: "אתם לא יכולים לרפא משהו שאתם ממשיכים להציג",
+    summary: "כל פעם שאתם מספרים שוב את הסיפור לצורך רחמים — אתם מחזחזים את הפצע. הפצע צריך להרגיש פעם אחת — ואז להניח לו להיסגר.",
+    question: "יש לך 'סיפור' שאת מספרת שוב ושוב — לחברות, לעצמך, בתוך הראש? מה הסיפור הזה?",
+    followup: function(ans) { return 'כמה זמן את נושאת את הסיפור הזה? ושימי לב — כשאת מספרת אותו, מה את מקבלת בתמורה? רחמים? הצדקה? הוכחה שצדקת?'; },
+    insight: "💡 **הפנמה:** הסיפור שאת חוזרת עליו — הוא לא מי שאת. זו רק נקודה שקפאת בה. את יכולה לשחרר אותה."
+  },
+  {
+    num: 5,
+    title: "ככל שאתם פחות צריכים את התוצאה, כך היא מגיעה מהר יותר",
+    summary: "יש קשר הפוך בין נואשות לבין יצירת מציאות. זה עובד כמו כוח משיכה — הגרסה שלכם שחייבת בדיוק את מה שאתם רוצים מושכת פחות.",
+    question: "יש לך עכשיו משהו שאת *מאוד* צריכה שיקרה? כמה חזק את מרגישה את הצורך הזה?",
+    followup: function(ans) { return 'מה היה משתנה אם היית יודעת שזה יגיע, רק לא יודעת מתי? האם הדחיפות שאת מרגישה עכשיו תישאר — או שמשהו בך ייסגר?'; },
+    insight: "💡 **הפנמה:** הצורך הדחוף הוא לא ממקום של חוזק — הוא ממקום של פחד. תתחילי לפעול מהמקום של 'אני שלם גם בלי זה.'"
+  },
+  {
+    num: 6,
+    title: "האדם שלא צריך כלום מאף אחד הופך להיות האדם שכולם צריכים",
+    summary: "לא כי הוא קר — אלא כי שלמותו יוצרת משיכה. הנתיק הוא לא מגבלה, הוא הבסיס לחיים — שמושכים אליהם הכול כי הם לא צריכים דבר.",
+    question: "ממי את הכי תלויה רגשית כרגע? מה היה קורה אם אותו אדם לא היה נגיש?",
+    followup: function(ans) { return 'אז חלק ממך צריך את האישור/הנוכחות/האהבה של אותו אדם. שאלה: מה היה קורה אם היית מספקת לעצמך את הדבר הזה?'; },
+    insight: "💡 **הפנמה:** כל תלות שאת מרגישה — היא מקום שבו עדיין לא החזרת לעצמך את הכוח. זה לא אומר להתנתק מאנשים, זה אומר לא *לצרוך* אותם."
+  },
+  {
+    num: 7,
+    title: "מה שאתם נותנים לעצמכם קובע מה תקבלו מאחרים",
+    summary: "אנשים לא מתייחסים אליכם לפי מה שאתם אומרים — הם מתייחסים לפי מה שאתם מוכנים לקבל. הסטנדרט האמיתי שלכם נקבע במה שאתם מוכנים לסבול.",
+    question: "מה את סובלת מאנשים שבחיים שלך שלא מגיע לך לסבול? תהיי כנה.",
+    followup: function(ans) { return 'ועכשיו שאלה קשה: מה את אומרת לעצמך שמצדיק את זה? מה הסיפור שמאפשר לך להמשיך לסבול את זה?'; },
+    insight: "💡 **הפנמה:** הסטנדרט שאת קובעת לעצמך בפנים — הוא מה שהעולם ייתן לך בחוץ. שני מה שאת מוכנה לקבל."
+  },
+  {
+    num: 8,
+    title: "מי שרגוע מנצח את מי שנלחץ",
+    summary: "לחץ גורם לכם לרדוף, רדיפה גורמת לכם לטעות. רוגע מאפשר לכם לראות ברור ולפעול מדויק. המשחק האמיתי — לא הולך למי שהכי חזק, אלא למי ששולט בעצמו.",
+    question: "תארי לי מצב אחרון שאיבדת קצת שליטה או הגבת מתוך לחץ. מה קרה?",
+    followup: function(ans) { return 'מה הרגשת בגוף שניה לפני שהגבת? לחץ בחזה? מחשבות מהירות? ועכשיו — לפי התחושה, האם הגעת לתוצאה שרצית?'; },
+    insight: "💡 **הפנמה:** הרוגע הוא לא פסיביות — הוא כוח. כשאת רגועה, את ב-*בחירה*. כשאת לחוצה, את ב-*תגובה*."
+  },
+  {
+    num: 9,
+    title: "מה שאתם מפחדים לאבד שולט בכם",
+    summary: "ברגע שאתם מפחדים לאבד משהו — אתם כבר לא חופשיים, כי כל החלטות שלכם מתחילות לעבור דרך הפחד. וכשאין לכם פחד לאבד — יש לכם כוח לבחור.",
+    question: "מה את הכי מפחדת לאבד? קשר? מעמד? כסף? אישור? ביטחון?",
+    followup: function(ans) { return 'ועכשיו — כמה החלטות בחייך מתקבלות בגלל הפחד לאבד את זה? תני לי דוגמה אחת.'; },
+    insight: "💡 **הפנמה:** הדבר שאת הכי מפחדת לאבד — הוא המקום שבו הכי פחות חופשייה. לא חייבת לאבד אותו. רק להפסיק לפחד מזה."
+  },
+  {
+    num: 10,
+    title: "לפעמים הוויתור הוא מה שמביא את הכול",
+    summary: "לא כל דבר צריך להילחם עליו. יש דברים שכשאתם משחררים אותם, הם חוזרים בצורה נכונה יותר — כי מה ששייך לך לא צריך מאבק מתמשך.",
+    question: "יש משהו שאת נאבקת עליו כבר הרבה זמן — ואולי כבר הגיע הזמן לשחרר? מה זה?",
+    followup: function(ans) { return 'ומה מונע ממך לשחרר? פחד שלא יחזור? תחושה שאם תוותרי זה אומר שניצחו אותך?'; },
+    insight: "💡 **הפנמה:** שחרור הוא לא כניעה. זה לפעמים הדרך החזקה ביותר לפתוח מקום לדבר האמיתי להיכנס."
+  },
+  {
+    num: 11,
+    title: "אנשים מרגישים את האנרגיה לפני המילים",
+    summary: "אתם יכולים להגיד את הדבר הנכון, אבל אם האנרגיה שלכם לחוצה — זה מה שיעבור. וכשאתם רגועים ושלמים — גם שתיקה מעבירה יותר מכל משפט.",
+    question: "חשבי על שיחה שניהלת לאחרונה שלא הלכה כמו שרצית. מה הרגשת *בפנים* בזמן השיחה?",
+    followup: function(ans) { return 'ועכשיו — האם לדעתך הצד השני הרגיש את מה שהיה בך, גם אם לא אמרת את זה?'; },
+    insight: "💡 **הפנמה:** לפני כל שיחה חשובה — עצרי ובדקי מה האנרגיה שאת מביאה. אנשים מגיבים לאנרגיה, לא רק למילים."
+  },
+  {
+    num: 12,
+    title: "מי שלא מפחד להיות לבד לעולם לא יתפשר על עצמו",
+    summary: "בדידות מפחידה רק למי שלא נח עם עצמו. אבל ברגע שאתם שלמים לבד — אתם מפסיקים לבחור מתוך צורך ומתחילים לבחור מתוך עוצמה.",
+    question: "האם את מסוגלת להיות לבד לגמרי — בלי טלפון, בלי הסחות דעת — ולהרגיש בנוח? כמה זמן?",
+    followup: function(ans) { return 'ועכשיו שאלה אמיתית: הקשרים שיש לך עכשיו — כמה מהם נכנסו לחייך מתוך בחירה אמיתית, וכמה מתוך פחד להיות לבד?'; },
+    insight: "💡 **הפנמה:** ביום שבו תהיי שלמה לבד — כל קשר שתבחרי יהיה מתוך חוזק. ולא יהיה קשר שתישארי בו מתוך פחד."
+  }
+];
+
+let currentLaw = 0;
+let currentStep = 0; // 0=intro, 1=question, 2=followup, 3=insight, 4=done
+let chatHistory = [];
+let waitingForInput = false;
+let lawComplete = false;
+
+function updateProgress() {
+  const pct = Math.round((currentLaw / LAWS.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+  const lawNum = Math.min(currentLaw + 1, 12);
+  document.getElementById('lawIndicator').textContent = `חוק ${lawNum}/12`;
+}
+
+function scrollToBottom() {
+  const chat = document.getElementById('chatArea');
+  setTimeout(() => chat.scrollTop = chat.scrollHeight, 100);
+}
+
+function addCoachMessage(html, delay = 0) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      // typing indicator
+      const typingEl = document.createElement('div');
+      typingEl.className = 'msg coach';
+      typingEl.innerHTML = `
+        <div class="avatar">✈️</div>
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>`;
+      document.getElementById('chatArea').appendChild(typingEl);
+      scrollToBottom();
+
+      setTimeout(() => {
+        typingEl.remove();
+        const msgEl = document.createElement('div');
+        msgEl.className = 'msg coach';
+        msgEl.innerHTML = `
+          <div class="avatar">✈️</div>
+          <div class="bubble">${html}</div>`;
+        document.getElementById('chatArea').appendChild(msgEl);
+        scrollToBottom();
+        resolve();
+      }, 1200);
+    }, delay);
+  });
+}
+
+function addUserMessage(text) {
+  const msgEl = document.createElement('div');
+  msgEl.className = 'msg user';
+  msgEl.innerHTML = `
+    <div class="avatar">🙋</div>
+    <div class="bubble">${text}</div>`;
+  document.getElementById('chatArea').appendChild(msgEl);
+  scrollToBottom();
+}
+
+function showChoices(choices, callback) {
+  const wrap = document.createElement('div');
+  wrap.className = 'choices';
+  wrap.id = 'choicesWrap';
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice;
+    btn.onclick = () => {
+      wrap.remove();
+      callback(choice);
+    };
+    wrap.appendChild(btn);
+  });
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollToBottom();
+}
+
+async function startLaw(index) {
+  if (index >= LAWS.length) {
+    showCompletion();
+    return;
+  }
+  const law = LAWS[index];
+  updateProgress();
+
+  // Law intro card
+  await addCoachMessage(`
+    <span class="law-title">חוק ${law.num}: ${law.title}</span>
+    <div class="law-card">
+      <div class="law-card-text">${law.summary}</div>
+    </div>
+  `);
+
+  await addCoachMessage(`עכשיו בואי נעבוד על זה ביחד. ${law.question}`);
+  waitingForInput = true;
+  currentStep = 1;
+}
+
+async function handleUserAnswer(text) {
+  if (!waitingForInput) return;
+  waitingForInput = false;
+  addUserMessage(text);
+
+  const law = LAWS[currentLaw];
+
+  if (currentStep === 1) {
+    // First answer → followup
+    currentStep = 2;
+    const followupText = law.followup(text);
+    await addCoachMessage(followupText);
+    waitingForInput = true;
+
+  } else if (currentStep === 2) {
+    // Second answer → insight + choices
+    currentStep = 3;
+    await addCoachMessage(law.insight);
+
+    await new Promise(resolve => setTimeout(resolve, 600));
+    await addCoachMessage(`מעולה. עבדנו על חוק ${law.num}. איך מרגיש לך? 💛`);
+
+    showChoices([
+      '💪 זה שינה לי את הראייה 💪',
+      '🤔 מעניין, צריכה לעכל',
+      '🔄 רוצה לחזור על החוק הזה',
+      '➡️ קדימה לחוק הבא'
+    ], async (choice) => {
+      addUserMessage(choice);
+      if (choice.includes('לחזור')) {
+        await addCoachMessage('בסדר, בואי נחזור ונעמיק...');
+        await new Promise(r => setTimeout(r, 500));
+        currentLaw--;
+        currentStep = 0;
+        currentLaw++;
+        startLaw(currentLaw);
+      } else {
+        currentLaw++;
+        currentStep = 0;
+        await addCoachMessage(`✅ סיימנו חוק ${law.num}. ממשיכות קדימה...`);
+        await new Promise(r => setTimeout(r, 800));
+        startLaw(currentLaw);
+      }
+    });
+  }
+}
+
+function showCompletion() {
+  document.getElementById('inputWrap').style.display = 'none';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = '100%';
+
+  const el = document.createElement('div');
+  el.className = 'completion-card';
+  el.innerHTML = `
+    <div class="trophy">🏆</div>
+    <h2>סיימת את כל 12 החוקים!</h2>
+    <p>עברת מסע שלם של מודעות עצמית.<br>
+    עכשיו האתגר האמיתי מתחיל — ליישם את זה ביומיום.</p>
+    <p style="margin-top:12px; color: var(--gold);">
+      "הכוח עטיון בך" 💛
+    </p>
+    <button class="restart-btn" onclick="restartAll()">🔄 להתחיל מחדש</button>
+  `;
+  document.getElementById('chatArea').appendChild(el);
+  scrollToBottom();
+}
+
+function restartAll() {
+  currentLaw = 0;
+  currentStep = 0;
+  waitingForInput = false;
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('inputWrap').style.display = 'flex';
+  updateProgress();
+  init();
+}
+
+async function init() {
+  await addCoachMessage(`
+    <strong>שלום! אני המאמנת האישית שלך. 💛</strong><br><br>
+    אני הולכת לעבוד איתך על 12 חוקים שישנו את הדרך שבה את מתנהלת עם עצמך ועם העולם.<br><br>
+    זה לא ידע תיאורטי — זה אימון. אני אשאל שאלות שידרשו ממך כנות מלאה.
+    <br><br>מוכנה להתחיל? 💪
+  `);
+
+  showChoices(['כן, בואי נתחיל!', 'ספרי לי עוד לפני'], async (choice) => {
+    addUserMessage(choice);
+    if (choice.includes('עוד')) {
+      await addCoachMessage(`
+        12 חוקים. בכל חוק — אני אציג את הרעיון, אשאל אותך שאלה אישית, ואז נעמיק.<br>
+        כדי שזה יעבוד — תהיי כנה. אין תשובות נכונות ולא נכונות.<br><br>
+        מוכנה? 💪
+      `);
+      showChoices(['יאלה, בואי נתחיל!'], async () => {
+        startLaw(0);
+      });
+    } else {
+      startLaw(0);
+    }
+  });
+}
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  handleUserAnswer(text);
+}
+
+// Enter to send, shift+enter for newline
+document.getElementById('userInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Auto resize textarea
+document.getElementById('userInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+});
+
+// Start
+updateProgress();
+init();
+</script>
+</body>
+</html>
